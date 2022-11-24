@@ -17,6 +17,14 @@ type TableImpl[T any] struct {
 	tableName string
 }
 
+// NewTableImpl creates an implementation for the given table
+func NewTableImpl[T any](baseClient *Client, tableName string) *TableImpl[T] {
+	return &TableImpl[T]{
+		client:    baseClient,
+		tableName: tableName,
+	}
+}
+
 // Filter given fields by by FilterElement criterion
 type Filter map[string]FilterElement
 
