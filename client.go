@@ -64,15 +64,14 @@ func (c *Client) doRequest(req *http.Request, out any) error {
 	}
 	defer resp.Body.Close()
 
-	b, _ := io.ReadAll(resp.Body)
-	fmt.Println(string(b))
+	// TODO: This is a temporary fix
+	if req.Method == "DELETE" && int(resp.StatusCode/100) == 2 {
+		return nil
+	}
+
 	if err := json.NewDecoder(resp.Body).Decode(out); err != nil {
 		return err
 	}
-
-	//if int(resp.StatusCode/100) != 2 {
-	//	err = errors.New(out.(baseResponse).Message)
-	//}
 
 	return err
 }
