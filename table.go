@@ -71,6 +71,9 @@ func (pt *TableImpl[T]) GetFirst() (*T, error) {
 		return nil, err
 	}
 	data, err := Map[any, *T](rawData, MapToStruct[T])
+	if err != nil {
+		return nil, err
+	}
 	if len(data) == 0 {
 		return nil, nil
 	}

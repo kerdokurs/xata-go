@@ -3,6 +3,7 @@ package xatago
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,7 +18,7 @@ type Client struct {
 }
 
 type baseResponse struct {
-	//Message string `json:"message,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 // NewClient initializes a new Xata Client
@@ -91,7 +92,15 @@ func (c *Client) query(tableName string, query *Query) ([]any, error) {
 	}
 
 	res := response{}
-	return res.Records, c.doRequest(req, &res)
+	if err = c.doRequest(req, &res); err != nil {
+		return nil, err
+	}
+
+	if res.Message != "" {
+		return nil, errors.New(res.Message)
+	}
+
+	return res.Records, nil
 }
 
 func (c *Client) create(tableName string, data any) (string, error) {
@@ -108,7 +117,15 @@ func (c *Client) create(tableName string, data any) (string, error) {
 	}
 
 	res := response{}
-	return res.ID, c.doRequest(req, &res)
+	if err = c.doRequest(req, &res); err != nil {
+		return "", err
+	}
+
+	if res.Message != "" {
+		return "", errors.New(res.Message)
+	}
+
+	return res.ID, nil
 }
 
 func (c *Client) delete(tableName string, id string) error {
@@ -124,5 +141,13 @@ func (c *Client) delete(tableName string, id string) error {
 	}
 
 	res := response{}
-	return c.doRequest(req, &res)
+	if err = c.doRequest(req, &res); err != nil {
+		return err
+	}
+
+	if res.Message != "" {
+		return errors.New(res.Message)
+	}
+
+	return nil
 }
