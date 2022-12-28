@@ -18,6 +18,7 @@ type Client struct {
 }
 
 type baseResponse struct {
+	ID      string `json:"id"`
 	Message string `json:"message,omitempty"`
 }
 
@@ -76,7 +77,7 @@ func (c *Client) doRequest(req *http.Request, out any) error {
 	return err
 }
 
-func (c *Client) query(tableName string, query *Query) ([]any, error) {
+func (c *Client) query(tableName string, query *apiQuery) ([]any, error) {
 	type response struct {
 		baseResponse
 		//Meta    any   `json:"meta,omitempty"`

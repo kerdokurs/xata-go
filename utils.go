@@ -1,22 +1,13 @@
 package xatago
 
 import (
-	"bytes"
-	"encoding/json"
+	"github.com/mitchellh/mapstructure"
 )
 
-// MapToStruct converts any given map to a given generic type struct
-func MapToStruct[T any](raw any) (*T, error) {
-	d, err := json.Marshal(raw)
-	if err != nil {
-		return nil, err
-	}
-	bb := bytes.NewBuffer(d)
-	t := new(T)
-	return t, json.NewDecoder(bb).Decode(t)
+func MapToStruct[T, D any](raw T, out *D) error {
+	return mapstructure.Decode(raw, out)
 }
 
-// Map maps elements in given slice by the mapper function
 func Map[T, D any](ts []T, mapper func(t T) (D, error)) ([]D, error) {
 	ds := make([]D, len(ts))
 
@@ -28,4 +19,17 @@ func Map[T, D any](ts []T, mapper func(t T) (D, error)) ([]D, error) {
 	}
 
 	return ds, err
+}
+
+func MapToStructs[T, D any](ts []T) ([]D, error) {
+	ds := make([]D, len(ts))
+
+	var err error
+	for i, t := range ts {
+		if err = MapToStruct[T, D](t, &ds[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return ds, nil
 }
