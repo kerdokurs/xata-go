@@ -111,6 +111,11 @@ func (c *Client) create(tableName string, data any) (string, error) {
 
 	url := fmt.Sprintf("%s/tables/%s/data", c.DatabaseURL, tableName)
 
+	var err error
+	if data, err = preprocessForCreate(&data); err != nil {
+		return "", err
+	}
+
 	req, err := c.buildRequest("POST", url, data)
 	if err != nil {
 		return "", err

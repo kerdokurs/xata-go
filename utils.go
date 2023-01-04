@@ -1,6 +1,8 @@
 package xatago
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -32,4 +34,31 @@ func MapToStructs[T, D any](ts []T) ([]D, error) {
 	}
 
 	return ds, nil
+}
+
+func preprocessForCreate[T any](item *T) (map[string]any, error) {
+	preprocessed := make(map[string]any)
+
+	buf := new(bytes.Buffer)
+
+	// Omit empty fields
+	if err := json.NewEncoder(buf).Encode(item); err != nil {
+		return nil, err
+	}
+	if err := json.NewDecoder(buf).Decode(&preprocessed); err != nil {
+		return nil, err
+	}
+
+	// Remove nested fields and replace with ID if exists in the nested map
+	for key, value := range preprocessed {
+		if mapValue, ok := value.(map[string]any); ok {
+			if idValue, ok := mapValue["id"]; ok {
+				preprocessed[key] = idValue
+			} else {
+				delete(preprocessed, key)
+			}
+		}
+	}
+
+	return preprocessed, nil
 }

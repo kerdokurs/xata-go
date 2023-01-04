@@ -5,7 +5,7 @@ import (
 )
 
 type post struct {
-	Record
+	ID       string `json:"id,omitempty"`
 	Title    string `json:"title"`
 	Subtitle string `json:"subtitle"`
 	Likes    int    `json:"likes"`
@@ -14,17 +14,18 @@ type post struct {
 }
 
 type user struct {
-	Record
+	ID   string `json:"id,omitempty"`
 	Name string `json:"name"`
 }
 
 type missing struct {
-	Record
+	ID string `json:"id,omitempty"`
 }
 
 type apiClient struct {
 	*Client
 	Posts   Table[post]
+	Users   Table[user]
 	Missing Table[missing]
 }
 
@@ -49,6 +50,7 @@ func buildXataClient(accessToken string, databaseURL string) *apiClient {
 	client := &apiClient{
 		Client:  xataClient,
 		Posts:   NewTableImpl[post](xataClient, "Posts"),
+		Users:   NewTableImpl[user](xataClient, "Users"),
 		Missing: NewTableImpl[missing](xataClient, "Missing"),
 	}
 

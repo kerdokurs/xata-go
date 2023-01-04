@@ -3,6 +3,10 @@ package xatago
 // Table represents a database table
 type Table[T any] interface {
 	Select(columns ...string) *Query[T]
+	Filter(key string, filterKey FilterKey, value any) *Query[T]
+
+	Create(item *T) (string, error)
+	Delete(id string) error
 }
 
 type TableRecord interface {
@@ -31,4 +35,12 @@ func (ti *TableImpl[T]) Select(columns ...string) *Query[T] {
 func (ti *TableImpl[T]) Filter(key string, filterKey FilterKey, value any) *Query[T] {
 	q := NewQuery[T](ti.client, ti.tableName)
 	return q.Filter(key, filterKey, value)
+}
+
+func (ti *TableImpl[T]) Create(item *T) (string, error) {
+	return ti.client.create(ti.tableName, item)
+}
+
+func (ti *TableImpl[T]) Delete(id string) error {
+	return ti.client.delete(ti.tableName, id)
 }
