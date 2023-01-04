@@ -3,8 +3,8 @@ on:
   push
 
 env:
-  DB_URL: {{ secrets.TEST_DB_URL }}
-  API_KEY: {{ secrets.TEST_API_KEY }}
+  DB_URL: '${{ secrets.TEST_DB_URL }}'
+  API_KEY: '${{ secrets.TEST_API_KEY }}'
 
 jobs:
   test:
