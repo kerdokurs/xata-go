@@ -1,5 +1,11 @@
 name: Go analysis
-on: [push]
+on:
+  push
+
+env:
+  DB_URL: {{ secrets.TEST_DB_URL }}
+  API_KEY: {{ secrets.TEST_API_KEY }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,7 +33,3 @@ jobs:
 
       - name: Go test
         run: go test ./...
-
-    env:
-      DB_URL: {{ secrets.TEST_DB_URL }}
-      API_KEY: {{ secrets.TEST_API_KEY }}
