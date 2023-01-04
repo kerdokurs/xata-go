@@ -4,6 +4,6 @@ type FilterKey string
 
 const (
 	Is FilterKey = "$Is"
-	Gt           = "$gt"
-	Lt           = "$lt"
+	Gt FilterKey = "$gt"
+	Lt FilterKey = "$lt"
 )
