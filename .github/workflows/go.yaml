@@ -24,3 +24,10 @@ jobs:
 
       - name: Run revive linter
         run: revive -config lint-config.toml -formatter friendly ./...
+
+      - name: Go test
+        run: go test ./...
+
+    env:
+      DB_URL: {{ secrets.TEST_DB_URL }}
+      API_KEY: {{ secrets.TEST_API_KEY }}
