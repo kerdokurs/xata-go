@@ -1,10 +1,13 @@
 package xatago
 
+import "errors"
+
 type Query[T any] struct {
 	client    *Client
 	tableName string
 	columns   []string
 	limit     int
+	filter    *apiFilter
 }
 
 func NewQuery[T any](client *Client, tableName string) *Query[T] {
@@ -20,9 +23,14 @@ type apiPage struct {
 	Size int `json:"size"`
 }
 
+type apiFilter struct {
+	All []map[string]any `json:"$all"`
+}
+
 type apiQuery struct {
-	Page    apiPage  `json:"page"`
-	Columns []string `json:"columns"`
+	Page    apiPage    `json:"page,omitempty"`
+	Columns []string   `json:"columns,omitempty"`
+	Filter  *apiFilter `json:"filter,omitempty"`
 }
 
 func (q *Query[T]) Select(columns []string) *Query[T] {
@@ -30,7 +38,25 @@ func (q *Query[T]) Select(columns []string) *Query[T] {
 	return q
 }
 
-func (q *Query[T]) Filter() *Query[T] {
+func (q *Query[T]) Filter(key string, filterKey FilterKey, value any) *Query[T] {
+	if q.filter == nil {
+		q.filter = new(apiFilter)
+	}
+
+	f := make(map[string]any)
+	switch filterKey {
+	case Is:
+		f[key] = value
+	default:
+		{
+			inner := make(map[string]any)
+			inner[string(filterKey)] = value
+			f[key] = inner
+		}
+	}
+
+	q.filter.All = append(q.filter.All, f)
+
 	return q
 }
 
@@ -40,11 +66,16 @@ func (q *Query[T]) GetFirst() (*T, error) {
 			Size: 1,
 		},
 		Columns: q.columns,
+		Filter:  q.filter,
 	}
 
 	ts, err := q.doQuery(&query)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(ts) == 0 {
+		return nil, errors.New("record not found")
 	}
 
 	return ts[0], nil

@@ -27,3 +27,8 @@ func (ti *TableImpl[T]) Select(columns ...string) *Query[T] {
 	q := NewQuery[T](ti.client, ti.tableName)
 	return q.Select(columns)
 }
+
+func (ti *TableImpl[T]) Filter(key string, filterKey FilterKey, value any) *Query[T] {
+	q := NewQuery[T](ti.client, ti.tableName)
+	return q.Filter(key, filterKey, value)
+}
