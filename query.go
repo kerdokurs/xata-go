@@ -87,6 +87,7 @@ func (q *Query[T]) GetMany() ([]*T, error) {
 			Size: q.limit,
 		},
 		Columns: q.columns,
+		Filter:  q.filter,
 	}
 
 	return q.doQuery(&query)

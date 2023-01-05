@@ -1,6 +1,11 @@
 name: Go analysis
 on:
-  push
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
 
 env:
   DB_URL: '${{ secrets.TEST_DB_URL }}'
