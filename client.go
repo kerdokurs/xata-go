@@ -103,34 +103,58 @@ func (c *Client) query(tableName string, query *apiQuery) ([]any, error) {
 	return res.Records, nil
 }
 
-func (c *Client) create(tableName string, data any) (string, error) {
-	type response struct {
-		baseResponse
-		ID string `json:"id"`
-	}
-
-	url := fmt.Sprintf("%s/tables/%s/data", c.DatabaseURL, tableName)
+func (c *Client) create(tableName string, data, out any) error {
+	url := fmt.Sprintf("%s/tables/%s/data?columns=*", c.DatabaseURL, tableName)
 
 	var err error
 	if data, err = preprocessForCreate(&data); err != nil {
-		return "", err
+		return err
 	}
 
 	req, err := c.buildRequest("POST", url, data)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	res := response{}
-	if err = c.doRequest(req, &res); err != nil {
-		return "", err
+	resMap := make(map[string]any)
+	if err = c.doRequest(req, &resMap); err != nil {
+		return err
 	}
 
-	if res.Message != "" {
-		return "", errors.New(res.Message)
+	if message, exists := resMap["message"]; exists && message != "" {
+		return errors.New(message.(string))
 	}
 
-	return res.ID, nil
+	delete(resMap, "message")
+	return MapToStruct[map[string]any, any](resMap, &out)
+}
+
+func (c *Client) update(tableName, id string, data, out any) error {
+	url := fmt.Sprintf("%s/tables/%s/data/%s?columns=*", c.DatabaseURL, tableName, id)
+
+	dataMap, err := preprocessForCreate(&data)
+	if err != nil {
+		return err
+	}
+
+	delete(dataMap, "id")
+
+	req, err := c.buildRequest("PATCH", url, dataMap)
+	if err != nil {
+		return err
+	}
+
+	resMap := make(map[string]any)
+	if err = c.doRequest(req, &resMap); err != nil {
+		return err
+	}
+
+	if message, exists := resMap["message"]; exists && message != "" {
+		return errors.New(message.(string))
+	}
+
+	delete(resMap, "message")
+	return MapToStruct[map[string]any, any](resMap, &out)
 }
 
 func (c *Client) delete(tableName string, id string) error {

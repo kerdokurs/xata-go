@@ -1,26 +1,24 @@
 package xatago
 
 // Table represents a database table
-type Table[T any] interface {
+type Table[T Record] interface {
 	Select(columns ...string) *Query[T]
 	Filter(key string, filterKey FilterKey, value any) *Query[T]
 
-	Create(item *T) (string, error)
-	Delete(id string) error
-}
-
-type TableRecord interface {
-	ID() string
+	Create(item *T) (*T, error)
+	Update(item *T) (*T, error)
+	Delete(item *T) error
+	DeleteById(id string) error
 }
 
 // TableImpl implements all the Table functions for a given generic type
-type TableImpl[T any] struct {
+type TableImpl[T Record] struct {
 	client    *Client
 	tableName string
 }
 
 // NewTableImpl creates an implementation for the given table
-func NewTableImpl[T any](baseClient *Client, tableName string) *TableImpl[T] {
+func NewTableImpl[T Record](baseClient *Client, tableName string) *TableImpl[T] {
 	return &TableImpl[T]{
 		client:    baseClient,
 		tableName: tableName,
@@ -37,10 +35,20 @@ func (ti *TableImpl[T]) Filter(key string, filterKey FilterKey, value any) *Quer
 	return q.Filter(key, filterKey, value)
 }
 
-func (ti *TableImpl[T]) Create(item *T) (string, error) {
-	return ti.client.create(ti.tableName, item)
+func (ti *TableImpl[T]) Create(item *T) (*T, error) {
+	t := new(T)
+	return t, ti.client.create(ti.tableName, item, t)
 }
 
-func (ti *TableImpl[T]) Delete(id string) error {
+func (ti *TableImpl[T]) Update(item *T) (*T, error) {
+	t := new(T)
+	return t, ti.client.update(ti.tableName, (*item).ID(), item, t)
+}
+
+func (ti *TableImpl[T]) Delete(item *T) error {
+	return ti.DeleteById((*item).ID())
+}
+
+func (ti *TableImpl[T]) DeleteById(id string) error {
 	return ti.client.delete(ti.tableName, id)
 }

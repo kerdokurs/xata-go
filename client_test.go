@@ -5,21 +5,33 @@ import (
 )
 
 type post struct {
-	ID       string `json:"id,omitempty"`
-	Title    string `json:"title"`
-	Subtitle string `json:"subtitle"`
-	Likes    int    `json:"likes"`
+	Id       string `json:"id,omitempty"`
+	Title    string `json:"title,omitempty"`
+	Subtitle string `json:"subtitle,omitempty"`
+	Likes    int    `json:"likes,omitempty"`
 
 	User *user `json:"user,omitempty"`
 }
 
+func (p post) ID() string {
+	return p.Id
+}
+
 type user struct {
-	ID   string `json:"id,omitempty"`
+	Id   string `json:"id,omitempty"`
 	Name string `json:"name"`
 }
 
+func (u user) ID() string {
+	return u.Id
+}
+
 type missing struct {
-	ID string `json:"id,omitempty"`
+	Id string `json:"id,omitempty"`
+}
+
+func (m missing) ID() string {
+	return m.Id
 }
 
 type apiClient struct {
