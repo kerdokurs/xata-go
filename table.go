@@ -5,6 +5,9 @@ type Table[T Record] interface {
 	Select(columns ...string) *Query[T]
 	Filter(key string, filterKey FilterKey, value any) *Query[T]
 
+	GetMany() ([]*T, error)
+	GetFirst() (*T, error)
+
 	Create(item *T) (*T, error)
 	Update(item *T) (*T, error)
 	Delete(item *T) error
@@ -33,6 +36,16 @@ func (ti *TableImpl[T]) Select(columns ...string) *Query[T] {
 func (ti *TableImpl[T]) Filter(key string, filterKey FilterKey, value any) *Query[T] {
 	q := NewQuery[T](ti.client, ti.tableName)
 	return q.Filter(key, filterKey, value)
+}
+
+func (ti *TableImpl[T]) GetMany() ([]*T, error) {
+	q := NewQuery[T](ti.client, ti.tableName)
+	return q.GetMany()
+}
+
+func (ti *TableImpl[T]) GetFirst() (*T, error) {
+	q := NewQuery[T](ti.client, ti.tableName)
+	return q.GetFirst()
 }
 
 func (ti *TableImpl[T]) Create(item *T) (*T, error) {
