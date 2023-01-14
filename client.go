@@ -180,3 +180,20 @@ func (c *Client) delete(tableName string, id string) error {
 
 	return nil
 }
+
+func (c *Client) GetSchema() (*Schema, error) {
+	type response struct {
+		Schema *Schema `json:"schema"`
+	}
+	req, err := c.buildRequest("GET", c.DatabaseURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := response{}
+	if err = c.doRequest(req, &res); err != nil {
+		return nil, err
+	}
+
+	return res.Schema, nil
+}
