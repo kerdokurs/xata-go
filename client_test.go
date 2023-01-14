@@ -61,8 +61,8 @@ func buildXataClient(accessToken string, databaseURL string) *apiClient {
 	xataClient := NewClient(accessToken, databaseURL)
 	client := &apiClient{
 		Client:  xataClient,
-		Posts:   NewTableImpl[post](xataClient, "Posts"),
-		Users:   NewTableImpl[user](xataClient, "Users"),
+		Posts:   NewTableImpl[post](xataClient, "Post"),
+		Users:   NewTableImpl[user](xataClient, "User"),
 		Missing: NewTableImpl[missing](xataClient, "Missing"),
 	}
 
