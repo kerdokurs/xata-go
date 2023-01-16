@@ -56,8 +56,18 @@ func ({{ .Model.FirstChar }} {{ .Model.Name }}) ID() string {
 }
 `
 
+// Which models to generate from the database
+// If empty, all models will be generated
+var modelsToGenerate = make(map[string]bool)
+
 func generateTypes(schema *xg.Schema) {
 	for _, table := range schema.Tables {
+		if len(modelsToGenerate) > 0 {
+			if _, ok := modelsToGenerate[table.Name]; !ok {
+				continue
+			}
+		}
+
 		fileName := fmt.Sprintf("%s/%s.go", *outPath, strcase.SnakeCase(table.Name))
 		f, err := os.Create(fileName)
 		errExit(err)
@@ -141,4 +151,14 @@ func toFieldType(columnType string) fieldType {
 		typ = stringField
 	}
 	return typ
+}
+
+func parseModelsToGenerate() {
+	if *onlyModels == "" {
+		return
+	}
+
+	for _, model := range strings.Split(*onlyModels, ",") {
+		modelsToGenerate[model] = true
+	}
 }
