@@ -21,4 +21,6 @@ Usage of codegen:
         Output directory (default "xata")
   -package string
         Package name (default "xata")
+  -only string
+        Only generate these tables (comma separated, case-sensitive)
 ```
