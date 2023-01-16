@@ -24,3 +24,13 @@ func exists(path string) (bool, error) {
 
 	return false, err
 }
+
+func filter[T any](ts []T, f func(T) bool) []T {
+	var res []T
+	for _, t := range ts {
+		if f(t) {
+			res = append(res, t)
+		}
+	}
+	return res
+}

@@ -94,7 +94,10 @@ func generateClient(schema *xg.Schema) {
 		Tables      []xg.SchemaTable
 	}{
 		PackageName: *packageName,
-		Tables:      schema.Tables,
+		Tables: filter(schema.Tables, func(t xg.SchemaTable) bool {
+			_, ok := modelsToGenerate[t.Name]
+			return ok
+		}),
 	})
 
 	f.Close()
